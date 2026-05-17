@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import matplotlib.pyplot as plt
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
@@ -47,6 +46,7 @@ def treinar(df: pd.DataFrame, seed: int = 42) -> tuple[RandomForestRegressor, di
 
 
 def grafico_importancia(modelo: RandomForestRegressor, destino: str) -> None:
+    import matplotlib.pyplot as plt
     importancias = pd.Series(modelo.feature_importances_, index=FEATURES).sort_values()
 
     fig, ax = plt.subplots(figsize=(8, 5))
@@ -59,6 +59,7 @@ def grafico_importancia(modelo: RandomForestRegressor, destino: str) -> None:
 
 
 def grafico_real_vs_previsto(metricas: dict, destino: str) -> None:
+    import matplotlib.pyplot as plt
     y_test = metricas["y_test"]
     y_pred = metricas["y_pred"]
     lim = max(y_test.max(), y_pred.max()) + 10

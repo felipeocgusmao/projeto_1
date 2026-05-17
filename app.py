@@ -4,8 +4,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
+import plotly.express as px
 
 from src.analise import carregar_dados, limpar_dados, DATA_PATH
 from src.modelo import treinar, preparar_features, FEATURES
@@ -70,56 +69,47 @@ with tab_eda:
 
     with col_a:
         st.subheader("Top 10 bairros — preço médio")
-        top = (
-            df_filtrado.groupby("Zona")["Noche"]
-            .mean()
-            .sort_values(ascending=False)
-            .head(10)
-        )
-        if top.empty:
+        if df_filtrado.empty:
             st.info("Nenhum dado com os filtros aplicados.")
         else:
-            fig, ax = plt.subplots(figsize=(7, 4))
-            bars = ax.barh(top.index[::-1], top.values[::-1], color="#4C72B0")
-            ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda x, _: f"{x:.0f}€"))
-            ax.bar_label(bars, fmt="%.0f€", padding=3, fontsize=8)
-            ax.set_xlabel("Preço médio (€)")
-            plt.tight_layout()
-            st.pyplot(fig)
-            plt.close()
+            top = (
+                df_filtrado.groupby("Zona")["Noche"]
+                .mean()
+                .sort_values(ascending=False)
+                .head(10)
+                .reset_index()
+            )
+            top.columns = ["Zona", "Preço médio (€)"]
+            fig = px.bar(top, x="Preço médio (€)", y="Zona", orientation="h",
+                         color="Preço médio (€)", color_continuous_scale="Blues",
+                         text_auto=".0f")
+            fig.update_layout(yaxis={"categoryorder": "total ascending"},
+                              coloraxis_showscale=False, height=380)
+            st.plotly_chart(fig, use_container_width=True)
 
     with col_b:
         st.subheader("Distribuição por tipo")
-        contagem = df_filtrado["TipoSimples"].value_counts()
-        if contagem.empty:
+        if df_filtrado.empty:
             st.info("Nenhum dado com os filtros aplicados.")
         else:
-            fig, ax = plt.subplots(figsize=(6, 4))
-            ax.pie(
-                contagem.values,
-                labels=contagem.index,
-                autopct="%1.1f%%",
-                startangle=140,
-                colors=["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B2"],
-            )
-            plt.tight_layout()
-            st.pyplot(fig)
-            plt.close()
+            contagem = df_filtrado["TipoSimples"].value_counts().reset_index()
+            contagem.columns = ["Tipo", "Total"]
+            fig = px.pie(contagem, names="Tipo", values="Total",
+                         color_discrete_sequence=px.colors.qualitative.Set2)
+            fig.update_layout(height=380)
+            st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("Valoração vs. Preço por noite")
     subset = df_filtrado.dropna(subset=["Valoracion", "Noche"])
     if subset.empty:
         st.info("Nenhum dado com os filtros aplicados.")
     else:
-        fig, ax = plt.subplots(figsize=(9, 4))
-        sc = ax.scatter(subset["Noche"], subset["Valoracion"], alpha=0.5,
-                        c=subset["Noche"], cmap="viridis", edgecolors="none")
-        plt.colorbar(sc, ax=ax, label="Preço (€)")
-        ax.set_xlabel("Preço por noite (€)")
-        ax.set_ylabel("Valoração")
-        plt.tight_layout()
-        st.pyplot(fig)
-        plt.close()
+        fig = px.scatter(subset, x="Noche", y="Valoracion", color="Noche",
+                         color_continuous_scale="Viridis", opacity=0.6,
+                         labels={"Noche": "Preço por noite (€)", "Valoracion": "Valoração"},
+                         hover_data=["Zona", "TipoSimples"])
+        fig.update_layout(height=420)
+        st.plotly_chart(fig, use_container_width=True)
 
 with tab_modelo:
     st.subheader("Simule o preço de um alojamento")
@@ -156,10 +146,13 @@ with tab_modelo:
 
     st.divider()
     st.subheader("Importância das features")
-    imp = pd.Series(modelo.feature_importances_, index=FEATURES).sort_values()
-    fig, ax = plt.subplots(figsize=(8, 4))
-    imp.plot.barh(ax=ax, color="#4C72B0")
-    ax.set_xlabel("Importância média")
-    plt.tight_layout()
-    st.pyplot(fig)
-    plt.close()
+    imp = (
+        pd.Series(modelo.feature_importances_, index=FEATURES)
+        .sort_values()
+        .reset_index()
+    )
+    imp.columns = ["Feature", "Importância"]
+    fig = px.bar(imp, x="Importância", y="Feature", orientation="h",
+                 color="Importância", color_continuous_scale="Blues")
+    fig.update_layout(coloraxis_showscale=False, height=350)
+    st.plotly_chart(fig, use_container_width=True)

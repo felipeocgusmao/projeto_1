@@ -1,8 +1,6 @@
 import os
 import re
 import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "alojamientos.csv")
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), "..", "outputs")
@@ -99,6 +97,8 @@ def limpar_dados(df: pd.DataFrame) -> pd.DataFrame:
 # ---------------------------------------------------------------------------
 
 def grafico_preco_por_bairro(df: pd.DataFrame, destino: str) -> None:
+    import matplotlib.pyplot as plt
+    import matplotlib.ticker as mticker
     top_zonas = (
         df.groupby("Zona")["Noche"]
         .mean()
@@ -118,6 +118,7 @@ def grafico_preco_por_bairro(df: pd.DataFrame, destino: str) -> None:
 
 
 def grafico_tipos_alojamento(df: pd.DataFrame, destino: str) -> None:
+    import matplotlib.pyplot as plt
     contagem = df["TipoSimples"].value_counts()
 
     fig, ax = plt.subplots(figsize=(7, 7))
@@ -137,6 +138,7 @@ def grafico_tipos_alojamento(df: pd.DataFrame, destino: str) -> None:
 
 
 def grafico_valoracao_vs_preco(df: pd.DataFrame, destino: str) -> None:
+    import matplotlib.pyplot as plt
     subset = df.dropna(subset=["Valoracion", "Noche"])
 
     fig, ax = plt.subplots(figsize=(9, 6))
