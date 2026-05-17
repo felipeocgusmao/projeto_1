@@ -17,6 +17,25 @@ def carregar_dados(caminho: str = DATA_PATH) -> pd.DataFrame:
     return df
 
 
+def _parsear_nhab(nhab: str) -> pd.Series:
+    """Extrai colunas numéricas de strings como '2 huéspedes · 1 dormitorio · 1 cama · 1 baño'."""
+    def _extrair(pattern, texto, default=None):
+        m = re.search(pattern, texto, re.IGNORECASE)
+        if not m:
+            return default
+        return float(m.group(1).replace(",", "."))
+
+    if pd.isna(nhab):
+        return pd.Series({"n_hospedes": None, "n_quartos": None, "n_camas": None, "n_banheiros": None})
+
+    return pd.Series({
+        "n_hospedes":  _extrair(r"(\d+)\s+huéspe", nhab),
+        "n_quartos":   _extrair(r"(\d+)\s+dormitorio", nhab),
+        "n_camas":     _extrair(r"(\d+)\s+cama", nhab),
+        "n_banheiros": _extrair(r"([\d,]+)\s+ba", nhab),
+    })
+
+
 def limpar_dados(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
@@ -50,6 +69,9 @@ def limpar_dados(df: pd.DataFrame) -> pd.DataFrame:
         .squeeze()
         .pipe(pd.to_numeric, errors="coerce")
     )
+
+    # Nhab: extrai n_hospedes, n_quartos, n_camas, n_banheiros
+    df = df.join(df["Nhab"].apply(_parsear_nhab))
 
     # Tipo: agrupa em categorias legíveis
     def _simplificar_tipo(t: str) -> str:

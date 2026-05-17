@@ -20,7 +20,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install pandas matplotlib seaborn pytest
+        run: pip install pandas matplotlib seaborn scikit-learn pytest
 
       - name: Run tests
         run: pytest test.py -v
