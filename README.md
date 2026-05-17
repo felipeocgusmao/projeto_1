@@ -1,52 +1,55 @@
-# Análise de Alojamentos Airbnb — Barcelona
+# Airbnb Barcelona — Análise & Previsão de Preços
 
-## Descrição
-Análise exploratória e modelo preditivo de preços de alojamentos Airbnb em Barcelona, com dashboard interativo.
+Dashboard interativo com análise exploratória e modelo preditivo de preços de alojamentos Airbnb em Barcelona.
 
-## Objetivo
-Identificar padrões de preço e qualidade para apoiar decisões no setor de turismo e hotelaria.
+🔗 **[Abrir app](https://projeto1-ow9ole3qp8uyiempm.streamlit.app/)**
+
+---
+
+## Funcionalidades
+
+| Aba | O que mostra |
+|---|---|
+| Análise exploratória | Top 10 bairros por preço médio, distribuição por tipo de alojamento e scatter de valoração vs preço — tudo filtrável por bairro, tipo e faixa de preço |
+| Previsão de preço | Formulário para simular o preço de um alojamento usando o modelo Random Forest (MAE ≈ 10€ · R² ≈ 0.80) |
 
 ## Dataset
-- Fonte: Kaggle — Comparative Analysis of Airbnb Prices in Barcelona
-- 300 alojamentos com informação de preço, zona, tipo e valoração
 
-## Como usar
+- **Fonte:** Kaggle — Comparative Analysis of Airbnb Prices in Barcelona
+- **Registros:** 300 alojamentos com preço, zona, tipo, valoração e número de hóspedes/quartos/camas/banheiros
 
-### Dashboard interativo
+## Principais conclusões
+
+- Bairros mais caros: Complejo Residencial (129€), El Putxet i el Farró (96€), Eixample (84€)
+- 65% dos alojamentos são quartos privados
+- Preço alto não garante melhor valoração
+
+## Estrutura do projeto
+
+```
+├── app.py                  # Dashboard Streamlit
+├── src/
+│   ├── analise.py          # Carregamento, limpeza e gráficos locais
+│   └── modelo.py           # Treino e avaliação do Random Forest
+├── data/
+│   └── alojamientos.csv    # Dataset
+├── notebooks/
+│   └── analise_turismo.ipynb
+├── outputs/                # Gráficos gerados localmente
+├── test.py                 # 24 testes pytest
+└── requirements.txt
+```
+
+## Como usar localmente
+
 ```bash
 pip install -r requirements.txt
-streamlit run app.py
+streamlit run app.py        # dashboard
+python src/analise.py       # gera outputs/
+python src/modelo.py        # métricas do modelo
+pytest test.py -v           # testes
 ```
-
-### Pipeline de análise
-```bash
-python src/analise.py   # gera gráficos em outputs/
-python src/modelo.py    # treina modelo e exibe métricas
-```
-
-### Testes
-```bash
-pytest test.py -v
-```
-
-## Deploy no Streamlit Cloud
-
-1. Acesse [share.streamlit.io](https://share.streamlit.io) e faça login com GitHub
-2. Clique em **New app**
-3. Selecione o repositório `felipeocgusmao/projeto_1`
-4. Branch: `main` · Main file: `app.py`
-5. Clique em **Deploy**
-
-## Análises realizadas
-- Preço médio por bairro (Top 10)
-- Distribuição por tipo de alojamento
-- Relação entre valoração e preço por noite
-- Previsão de preço com Random Forest (MAE ≈ 10€ · R² ≈ 0.80)
-
-## Conclusões
-- Os bairros mais caros são Complejo Residencial, El Putxet i el Farró e Eixample
-- A maioria dos alojamentos são quartos privados (~63%)
-- Preço alto não garante melhor avaliação
 
 ## Tecnologias
-- Python · Pandas · Matplotlib · scikit-learn · Streamlit
+
+Python · Pandas · scikit-learn · Plotly · Streamlit · Matplotlib · pytest · GitHub Actions
